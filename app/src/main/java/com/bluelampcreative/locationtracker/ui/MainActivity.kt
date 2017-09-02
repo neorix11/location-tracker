@@ -9,19 +9,24 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.bluelampcreative.locationtracker.R
 import com.google.android.gms.location.*
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
+import okhttp3.*
 import org.joda.time.DateTime
 import permissions.dispatcher.NeedsPermission
 import permissions.dispatcher.RuntimePermissions
 import timber.log.Timber
+import java.io.IOException
 
 @RuntimePermissions(kotlin = true)
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : AppCompatActivity(), Callback {
 
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     lateinit var locationCallback: LocationCallback
     lateinit var countDownTimer: CountDownTimer
+
+    val url = "https://demo0280857.mockable.io/locationdata"
+    val JSON = MediaType.parse("application/json; charset=utf-8")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,19 +71,40 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun postLocation(location: Location?) {
+
+        val okHttpClient = OkHttpClient()
+        val body = Gson().toJson(location)
+        val requestBody = RequestBody.create(JSON, body)
+        val request = Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build()
+
+        okHttpClient.newCall(request)
+                .enqueue(this)
+
         countDownTimer.start()
 
         txtLocationUpdateList.text = locationListBuilder(location)
+        scrlLogContainer.fullScroll(View.FOCUS_DOWN)
+    }
+
+    override fun onFailure(call: Call?, e: IOException?) {
+        Timber.e("Failed to post location")
+        call?.cancel()
+    }
+
+    override fun onResponse(call: Call?, response: Response?) {
+        Timber.e("Response %s : %s", call, response?.body()?.string())
     }
 
     private fun locationListBuilder(location: Location?): CharSequence? {
-        return "${txtLocationUpdateList.text}\n\n${location.toString()}"
+        return "${txtLocationUpdateList.text}\n\n  - ${location.toString()}"
     }
 
     @SuppressLint("MissingPermission")
     private fun startLocationTracking() {
-        Timber.d("Beginning Location Tracking")
-        txtLocationUpdateList.text = "${txtLocationUpdateList.text}\n\n BEGINNING LOCATION TRACKING : ${DateTime.now()}"
+        txtLocationUpdateList.text = "${txtLocationUpdateList.text}\n\nBEGINNING LOCATION TRACKING : ${DateTime.now()}"
         linTextContainer.visibility = View.VISIBLE
         btnLocationTracking.text = getString(R.string.end_location_tracking)
 
@@ -87,8 +113,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopLocationTracking() {
-        Timber.d("Ending Location Tracking")
-        txtLocationUpdateList.text = "${txtLocationUpdateList.text}\n\n ENDING LOCATION TRACKING : ${DateTime.now()}"
+        txtLocationUpdateList.text = "${txtLocationUpdateList.text}\n\nENDING LOCATION TRACKING : ${DateTime.now()}"
         linTextContainer.visibility = View.GONE
         btnLocationTracking.text = getString(R.string.begin_location_tracking)
         countDownTimer.cancel()

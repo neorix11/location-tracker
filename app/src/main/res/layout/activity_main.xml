@@ -44,6 +44,7 @@
     </LinearLayout>
 
     <ScrollView
+        android:id="@+id/scrlLogContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -51,7 +52,7 @@
             android:id="@+id/txtLocationUpdateList"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="10sp"/>
+            android:textSize="10sp" />
     </ScrollView>
 
 
