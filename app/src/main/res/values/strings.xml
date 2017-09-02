@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Location Tracker</string>
+    <string name="begin_location_tracking">Begin Location Tracking</string>
+    <string name="next_location_update">Next location update in: </string>
+    <string name="end_location_tracking">End Location Tracking</string>
+</resources>
