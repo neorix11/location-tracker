@@ -32,19 +32,11 @@ class MainActivity : AppCompatActivity(), Callback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        createLocationCallback()
-        createCountDownTimer()
+        locationCallback = createLocationCallback()
+        countDownTimer = createCountDownTimer()
 
         btnLocationTracking.setOnClickListener {
             toggleLocationTracking()
-        }
-    }
-
-    private fun toggleLocationTracking() {
-        if (linTextContainer.visibility == View.VISIBLE) {
-            stopLocationTracking()
-        } else {
-            createLocationClientWithCheck()
         }
     }
 
@@ -54,20 +46,33 @@ class MainActivity : AppCompatActivity(), Callback {
         startLocationTracking()
     }
 
-    private fun createLocationCallback() {
-        locationCallback = object : LocationCallback() {
+    private fun createLocationCallback(): LocationCallback {
+        return object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult?.locations?.forEach { location -> postLocation(location) }
             }
         }
     }
 
-    private fun getLocationRequest(): LocationRequest? {
-        return LocationRequest
-                .create()
-                .setInterval(15000)
-                .setFastestInterval(15000)
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+    private fun createCountDownTimer(): CountDownTimer {
+        return object : CountDownTimer(15000, 1000) {
+            override fun onFinish() {
+                countDownTimer.cancel()
+                txtSecondsUntilUpdate.text = "--"
+            }
+
+            override fun onTick(millsToFinish: Long) {
+                txtSecondsUntilUpdate.text = "${(millsToFinish / 1000)} seconds"
+            }
+        }
+    }
+
+    private fun toggleLocationTracking() {
+        if (linTextContainer.visibility == View.VISIBLE) {
+            stopLocationTracking()
+        } else {
+            createLocationClientWithCheck()
+        }
     }
 
     private fun postLocation(location: Location?) {
@@ -80,26 +85,12 @@ class MainActivity : AppCompatActivity(), Callback {
                 .post(requestBody)
                 .build()
 
-        okHttpClient.newCall(request)
-                .enqueue(this)
+        okHttpClient.newCall(request).enqueue(this)
 
         countDownTimer.start()
 
-        txtLocationUpdateList.text = locationListBuilder(location)
+        txtLocationUpdateList.text = "${txtLocationUpdateList.text}\n\n  - ${location.toString()}"
         scrlLogContainer.fullScroll(View.FOCUS_DOWN)
-    }
-
-    override fun onFailure(call: Call?, e: IOException?) {
-        Timber.e("Failed to post location")
-        call?.cancel()
-    }
-
-    override fun onResponse(call: Call?, response: Response?) {
-        Timber.e("Response %s : %s", call, response?.body()?.string())
-    }
-
-    private fun locationListBuilder(location: Location?): CharSequence? {
-        return "${txtLocationUpdateList.text}\n\n  - ${location.toString()}"
     }
 
     @SuppressLint("MissingPermission")
@@ -121,17 +112,21 @@ class MainActivity : AppCompatActivity(), Callback {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
     }
 
-    private fun createCountDownTimer() {
-        countDownTimer = object : CountDownTimer(15000, 1000) {
-            override fun onFinish() {
-                countDownTimer.cancel()
-                txtSecondsUntilUpdate.text = "--"
-            }
+    private fun getLocationRequest(): LocationRequest? {
+        return LocationRequest
+                .create()
+                .setInterval(15000)
+                .setFastestInterval(15000)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+    }
 
-            override fun onTick(millsToFinish: Long) {
-                txtSecondsUntilUpdate.text = "${(millsToFinish / 1000)} seconds"
-            }
-        }
+    override fun onFailure(call: Call?, e: IOException?) {
+        Timber.e("Failed to post location")
+        call?.cancel()
+    }
+
+    override fun onResponse(call: Call?, response: Response?) {
+        Timber.e("Response %s ", response?.body()?.string())
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
