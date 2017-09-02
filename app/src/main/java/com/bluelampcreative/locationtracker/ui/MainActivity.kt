@@ -4,11 +4,13 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.bluelampcreative.locationtracker.R
 import com.google.android.gms.location.*
 import kotlinx.android.synthetic.main.activity_main.*
+import org.joda.time.DateTime
 import permissions.dispatcher.NeedsPermission
 import permissions.dispatcher.RuntimePermissions
 import timber.log.Timber
@@ -19,12 +21,14 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     lateinit var locationCallback: LocationCallback
+    lateinit var countDownTimer: CountDownTimer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         createLocationCallback()
+        createCountDownTimer()
 
         btnLocationTracking.setOnClickListener {
             toggleLocationTracking()
@@ -34,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     private fun toggleLocationTracking() {
         if (linTextContainer.visibility == View.VISIBLE) {
             stopLocationTracking()
-
         } else {
             createLocationClientWithCheck()
         }
@@ -62,26 +65,48 @@ class MainActivity : AppCompatActivity() {
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
     }
 
-
     private fun postLocation(location: Location?) {
-        //replace with a web call
-        Timber.e("New Location %s", location)
+        countDownTimer.start()
+
+        txtLocationUpdateList.text = locationListBuilder(location)
+    }
+
+    private fun locationListBuilder(location: Location?): CharSequence? {
+        return "${txtLocationUpdateList.text}\n\n${location.toString()}"
     }
 
     @SuppressLint("MissingPermission")
     private fun startLocationTracking() {
         Timber.d("Beginning Location Tracking")
+        txtLocationUpdateList.text = "${txtLocationUpdateList.text}\n\n BEGINNING LOCATION TRACKING : ${DateTime.now()}"
         linTextContainer.visibility = View.VISIBLE
         btnLocationTracking.text = getString(R.string.end_location_tracking)
+
 
         fusedLocationProviderClient.requestLocationUpdates(getLocationRequest(), locationCallback, null)
     }
 
     private fun stopLocationTracking() {
         Timber.d("Ending Location Tracking")
+        txtLocationUpdateList.text = "${txtLocationUpdateList.text}\n\n ENDING LOCATION TRACKING : ${DateTime.now()}"
         linTextContainer.visibility = View.GONE
         btnLocationTracking.text = getString(R.string.begin_location_tracking)
+        countDownTimer.cancel()
+
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+    }
+
+    private fun createCountDownTimer() {
+        countDownTimer = object : CountDownTimer(15000, 1000) {
+            override fun onFinish() {
+                countDownTimer.cancel()
+                txtSecondsUntilUpdate.text = "--"
+            }
+
+            override fun onTick(millsToFinish: Long) {
+                txtSecondsUntilUpdate.text = "${(millsToFinish / 1000)} seconds"
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
