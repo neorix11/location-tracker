@@ -40,12 +40,6 @@ class MainActivity : AppCompatActivity(), Callback {
         }
     }
 
-    @NeedsPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    fun createLocationClient() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        startLocationTracking()
-    }
-
     private fun createLocationCallback(): LocationCallback {
         return object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
@@ -68,11 +62,17 @@ class MainActivity : AppCompatActivity(), Callback {
     }
 
     private fun toggleLocationTracking() {
-        if (linTextContainer.visibility == View.VISIBLE) {
+        if (linSecondsTextContainer.visibility == View.VISIBLE) {
             stopLocationTracking()
         } else {
             createLocationClientWithCheck()
         }
+    }
+
+    @NeedsPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    fun createLocationClient() {
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        startLocationTracking()
     }
 
     private fun postLocation(location: Location?) {
@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity(), Callback {
     @SuppressLint("MissingPermission")
     private fun startLocationTracking() {
         txtLocationUpdateList.text = "${txtLocationUpdateList.text}\n\nBEGINNING LOCATION TRACKING : ${DateTime.now()}"
-        linTextContainer.visibility = View.VISIBLE
+        linSecondsTextContainer.visibility = View.VISIBLE
         btnLocationTracking.text = getString(R.string.end_location_tracking)
 
 
@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity(), Callback {
 
     private fun stopLocationTracking() {
         txtLocationUpdateList.text = "${txtLocationUpdateList.text}\n\nENDING LOCATION TRACKING : ${DateTime.now()}"
-        linTextContainer.visibility = View.GONE
+        linSecondsTextContainer.visibility = View.GONE
         btnLocationTracking.text = getString(R.string.begin_location_tracking)
         countDownTimer.cancel()
 

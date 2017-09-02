@@ -17,7 +17,7 @@
         android:text="@string/begin_location_tracking" />
 
     <LinearLayout
-        android:id="@+id/linTextContainer"
+        android:id="@+id/linSecondsTextContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
