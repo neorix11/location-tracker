@@ -8,8 +8,8 @@ Given the requirements, I envisioned a button at the top of the screen that coul
 log report that displays the app's tracking state as well as the location when it's received. While the additional UI elements weren't a requirement, it was easy enough to implement and besides, who doesn't like feedback?
 
 In `onCreate()` I initialize the `locationCallback`, the `countDownTimer` and set the `onClickListener` for the tracking button.
-When the user clicks the button, `toggleLocationTracking()` will evaluate if the countdown is visible. If the countdown is not visible the tracking will commence. Otherwise is will stop.
-Upon receipt of location, (*every 15 seconds or so*) `postLocation(location)` will be invoked and a POST request will be made to [https://demo0280857.mockable.io/locationdata](https://demo0280857.mockable.io/locationdata)
+When the user clicks the button, `toggleLocationTracking()` will evaluate if the countdown is visible. If the countdown is not visible the tracking will commence; otherwise, it will stop.
+Upon receipt of location (*every 15 seconds or so*) `postLocation(location)` will be invoked and a POST request will be made to [https://demo0280857.mockable.io/locationdata](https://demo0280857.mockable.io/locationdata)
 
 ##A Quick Dependency Rundown
  * Google Play Service - Location
