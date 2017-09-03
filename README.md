@@ -1,4 +1,4 @@
-# location-tracker
+# Location Tracker
 ## Strategy
 Typically when I start a new Android project I begin with a template such as 
 [**Android Core Kotlin**](https://github.com/neorix11/android-core-kotlin) or [**Andriod Core Java**](https://github.com/neorix11/android-core-java) which are updated versions of some other core templates I've employed in the past.
