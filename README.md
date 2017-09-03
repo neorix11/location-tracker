@@ -1,7 +1,7 @@
 # Location Tracker
 ## Strategy
 Typically when I start a new Android project I begin with a template such as 
-[**Android Core Kotlin**](https://github.com/neorix11/android-core-kotlin) or [**Andriod Core Java**](https://github.com/neorix11/android-core-java) which are updated versions of some other core templates I've employed in the past.
+[**Android Core Kotlin**](https://github.com/neorix11/android-core-kotlin) or [**Andriod Core Java**](https://github.com/neorix11/android-core-java) which are recently updated versions of some other core templates I've employed in the past.
 However, given the nature of this exercise I decided to avoid the setup of an MVP architecture and just keep all the code in the Main Activity for easy reference.
 
 Given the requirements, I envisioned a button at the top of the screen that could toggle the location tracking state. Below it a countdown indicating the time remaining until the next update is requested. Below the countdown, a
